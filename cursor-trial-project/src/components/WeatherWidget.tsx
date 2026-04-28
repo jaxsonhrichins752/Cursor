@@ -54,6 +54,13 @@ function WeatherGlyph({ description }: { description: string }) {
 }
 
 export function WeatherWidget() {
+  // Read order for this component:
+  // 1) Local state
+  // 2) Fetch effect when query changes
+  // 3) Manual refresh helper
+  // 4) Form submit handler
+  // 5) Render-state branches (key missing/loading/error/success)
+
   // Local widget state: input, committed query, request status, and result data.
   const [city, setCity] = useState(DEFAULT_CITY)
   const [submittedCity, setSubmittedCity] = useState(DEFAULT_CITY)
@@ -146,6 +153,7 @@ export function WeatherWidget() {
           Weather
         </Typography>
 
+        {/* Controls: city input, submit to change query, manual refresh button. */}
         <Box component="form" onSubmit={handleSubmit} sx={{ mb: 2, flexShrink: 0 }}>
           <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1}>
             <TextField
@@ -171,8 +179,10 @@ export function WeatherWidget() {
           </Stack>
         </Box>
 
+        {/* Results panel: exactly one branch is visible at a time. */}
         <Box sx={{ flex: 1, minHeight: 0, overflowY: 'auto', pr: 0.5 }}>
           {!API_KEY && (
+            // Key missing: show setup guidance instead of attempting fetches.
             <Typography variant="body2" color="warning.main" sx={{ mb: 1 }}>
               Placeholder: set{' '}
               <Typography component="span" variant="body2" sx={{ fontFamily: 'monospace' }}>
@@ -184,6 +194,7 @@ export function WeatherWidget() {
           )}
 
           {loading && (
+            // Request active: show spinner/status text.
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, py: 2 }}>
               <CircularProgress size={22} />
               <Typography variant="body2" color="text.secondary">
@@ -193,12 +204,14 @@ export function WeatherWidget() {
           )}
 
           {!loading && error && (
+            // Request failed: show normalized, user-friendly error.
             <Typography variant="body2" color="error">
               {error}
             </Typography>
           )}
 
           {!loading && !error && weather && (
+            // Request succeeded: render weather snapshot card.
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, flexWrap: 'wrap' }}>
               <Box
                 sx={{

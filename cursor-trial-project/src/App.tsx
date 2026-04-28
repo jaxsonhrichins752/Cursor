@@ -40,6 +40,13 @@ type GoogleSession = {
 }
 
 function App() {
+  // Read order for this component:
+  // 1) Config from env
+  // 2) Auth-related state
+  // 3) Startup preload effect
+  // 4) Sign-in / sign-out handlers
+  // 5) JSX layout that composes dashboard widgets
+
   // 1) Config: env-driven OAuth settings with a default scope string.
   const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID ?? ''
   const googleScope =
@@ -113,6 +120,7 @@ function App() {
   return (
     <Box sx={{ minHeight: '100vh', bgcolor: 'grey.100' }}>
       <CssBaseline />
+      {/* Header reflects auth state and exposes sign-in/sign-out actions. */}
       <AppHeader
         isSignedIn={Boolean(session)}
         authLoading={authLoading}
@@ -131,6 +139,7 @@ function App() {
         <Typography variant="h5" sx={{ mb: 2 }}>
           Overview
         </Typography>
+        {/* Grid is the high-level dashboard composition map. */}
         <Grid
           container
           spacing={2}
@@ -139,15 +148,19 @@ function App() {
             gridAutoRows: { xs: 'auto', md: 'minmax(160px, auto)' },
           }}
         >
+          {/* Left/top: task list (Google token required). */}
           <Grid size={{ xs: 12, md: 7 }}>
             <GoogleTasksWidget accessToken={session?.accessToken ?? null} />
           </Grid>
+          {/* Right/top: weather (public API, no Google token needed). */}
           <Grid size={{ xs: 12, md: 5 }}>
             <WeatherWidget />
           </Grid>
+          {/* Bottom-left: compact calendar agenda (Google token required). */}
           <Grid size={{ xs: 12, sm: 6, md: 4 }} sx={{ alignSelf: 'start' }}>
             <GoogleCalendarWidget accessToken={session?.accessToken ?? null} />
           </Grid>
+          {/* Bottom-right: MTG card content block (independent feature card). */}
           <Grid size={{ xs: 12, sm: 6, md: 8 }}>
             <MtgCardOfDayWidget />
           </Grid>
