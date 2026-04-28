@@ -119,16 +119,16 @@ function App() {
             gridAutoRows: { xs: 'auto', md: 'minmax(160px, auto)' },
           }}
         >
-          <Grid size={{ xs: 12, md: 7 }} sx={{ gridRow: { md: 'span 2' } }}>
+          <Grid size={{ xs: 12, md: 7 }}>
             <GoogleTasksWidget accessToken={session?.accessToken ?? null} />
           </Grid>
           <Grid size={{ xs: 12, md: 5 }}>
             <WeatherWidget />
           </Grid>
-          <Grid size={{ xs: 12, sm: 6, md: 5 }}>
+          <Grid size={{ xs: 12, sm: 6, md: 4 }}>
             <GoogleCalendarWidget accessToken={session?.accessToken ?? null} />
           </Grid>
-          <Grid size={{ xs: 12 }} sx={{ gridRow: { md: 'span 2' } }}>
+          <Grid size={{ xs: 12, sm: 6, md: 8 }}>
             <MtgCardOfDayWidget />
           </Grid>
         </Grid>

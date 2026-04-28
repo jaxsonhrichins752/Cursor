@@ -20,6 +20,7 @@ import DeleteRoundedIcon from '@mui/icons-material/DeleteRounded'
 import EditRoundedIcon from '@mui/icons-material/EditRounded'
 import RefreshRoundedIcon from '@mui/icons-material/RefreshRounded'
 import SaveRoundedIcon from '@mui/icons-material/SaveRounded'
+import TaskAltRoundedIcon from '@mui/icons-material/TaskAltRounded'
 import {
   createTask,
   deleteTask,
@@ -190,8 +191,10 @@ export function GoogleTasksWidget({ accessToken }: GoogleTasksWidgetProps) {
         <Box
           sx={{
             display: 'flex',
-            alignItems: 'center',
+            alignItems: { xs: 'flex-start', sm: 'center' },
             justifyContent: 'space-between',
+            flexDirection: { xs: 'column', sm: 'row' },
+            gap: 1,
             mb: 2,
           }}
         >
@@ -208,7 +211,11 @@ export function GoogleTasksWidget({ accessToken }: GoogleTasksWidgetProps) {
           </Button>
         </Box>
 
-        <Box component="form" onSubmit={handleAddTask} sx={{ display: 'flex', gap: 1, mb: 2 }}>
+        <Box
+          component="form"
+          onSubmit={handleAddTask}
+          sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, gap: 1, mb: 2 }}
+        >
           <TextField
             fullWidth
             size="small"
@@ -235,6 +242,27 @@ export function GoogleTasksWidget({ accessToken }: GoogleTasksWidgetProps) {
           <Typography variant="body2" color="error" sx={{ mb: 1.5 }}>
             {error}
           </Typography>
+        )}
+
+        {!accessToken && (
+          <Box
+            sx={{
+              border: '1px dashed #d7dde1',
+              borderRadius: 2,
+              p: 2,
+              mb: 2,
+              textAlign: 'center',
+              bgcolor: '#fbfcfc',
+            }}
+          >
+            <TaskAltRoundedIcon sx={{ color: 'text.secondary', mb: 0.5 }} />
+            <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+              Connect your Google account to sync tasks.
+            </Typography>
+            <Button disabled variant="outlined" size="small">
+              Connect Google Account
+            </Button>
+          </Box>
         )}
 
         <List sx={{ py: 0 }}>

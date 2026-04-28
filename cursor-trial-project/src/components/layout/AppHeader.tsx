@@ -58,13 +58,13 @@ export function AppHeader({
           </Typography>
           {!isSignedIn ? (
             <Button
-              color="inherit"
+              color="primary"
               variant="outlined"
               size="small"
               onClick={onSignIn}
               disabled={authLoading}
               startIcon={<LoginRoundedIcon />}
-              sx={{ mr: 1, borderColor: 'rgba(255,255,255,0.5)', color: 'inherit' }}
+              sx={{ mr: 1 }}
             >
               Sign in
             </Button>

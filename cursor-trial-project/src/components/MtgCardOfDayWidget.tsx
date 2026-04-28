@@ -82,10 +82,11 @@ export function MtgCardOfDayWidget() {
         <Box
           sx={{
             display: 'flex',
-            alignItems: 'center',
+            alignItems: { xs: 'flex-start', sm: 'center' },
             justifyContent: 'space-between',
+            flexDirection: { xs: 'column', sm: 'row' },
             mb: 2,
-            gap: 2,
+            gap: 1,
           }}
         >
           <Typography variant="h6">MTG Card of the Day</Typography>
@@ -117,17 +118,29 @@ export function MtgCardOfDayWidget() {
         )}
 
         {!loading && !error && card && (
-          <Box sx={{ display: 'flex', gap: 2, alignItems: 'flex-start' }}>
+          <Box
+            sx={{
+              display: 'flex',
+              gap: 2,
+              alignItems: 'flex-start',
+              flexDirection: { xs: 'column', sm: 'row' },
+            }}
+          >
             {card.imageUrl && (
               <Box
                 component="img"
                 src={card.imageUrl}
                 alt={card.name}
                 sx={{
-                  width: { xs: 96, sm: 120 },
+                  width: { xs: 120, sm: 156 },
                   borderRadius: 1,
                   flexShrink: 0,
                   boxShadow: 2,
+                  transition: 'transform 180ms ease, box-shadow 180ms ease',
+                  '&:hover': {
+                    transform: 'rotate(-1.2deg) translateY(-2px)',
+                    boxShadow: '0 8px 24px rgba(0,0,0,0.16)',
+                  },
                 }}
               />
             )}

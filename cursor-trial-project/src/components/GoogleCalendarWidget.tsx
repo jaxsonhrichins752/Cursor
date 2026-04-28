@@ -9,6 +9,7 @@ import {
   Typography,
 } from '@mui/material'
 import RefreshRoundedIcon from '@mui/icons-material/RefreshRounded'
+import CalendarMonthRoundedIcon from '@mui/icons-material/CalendarMonthRounded'
 import { fetchUpcomingCalendarEvents, type CalendarEvent } from '../lib/googleCalendar'
 
 type GoogleCalendarWidgetProps = {
@@ -98,8 +99,10 @@ export function GoogleCalendarWidget({ accessToken }: GoogleCalendarWidgetProps)
         <Box
           sx={{
             display: 'flex',
-            alignItems: 'center',
+            alignItems: { xs: 'flex-start', sm: 'center' },
             justifyContent: 'space-between',
+            flexDirection: { xs: 'column', sm: 'row' },
+            gap: 1,
             mb: 2,
           }}
         >
@@ -129,6 +132,26 @@ export function GoogleCalendarWidget({ accessToken }: GoogleCalendarWidgetProps)
           <Typography variant="body2" color="error">
             {error}
           </Typography>
+        )}
+
+        {!accessToken && (
+          <Box
+            sx={{
+              border: '1px dashed #d7dde1',
+              borderRadius: 2,
+              p: 2,
+              textAlign: 'center',
+              bgcolor: '#fbfcfc',
+            }}
+          >
+            <CalendarMonthRoundedIcon sx={{ color: 'text.secondary', mb: 0.5 }} />
+            <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+              Connect Google to view your upcoming events.
+            </Typography>
+            <Button disabled variant="outlined" size="small">
+              Connect Google Account
+            </Button>
+          </Box>
         )}
 
         {!loading && !error && events.length === 0 && (

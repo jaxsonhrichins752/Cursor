@@ -11,15 +11,32 @@ import {
   Typography,
 } from '@mui/material'
 import RefreshRoundedIcon from '@mui/icons-material/RefreshRounded'
+import WbSunnyRoundedIcon from '@mui/icons-material/WbSunnyRounded'
+import CloudRoundedIcon from '@mui/icons-material/CloudRounded'
+import ThunderstormRoundedIcon from '@mui/icons-material/ThunderstormRounded'
+import WaterDropRoundedIcon from '@mui/icons-material/WaterDropRounded'
 import {
   fetchCurrentWeather,
-  weatherIconUrl,
   type CurrentWeather,
 } from '../lib/openWeatherMap'
 
 const API_KEY = import.meta.env.VITE_OPENWEATHER_API_KEY ?? ''
 const DEFAULT_CITY =
   import.meta.env.VITE_WEATHER_DEFAULT_CITY ?? 'New York'
+
+function WeatherGlyph({ description }: { description: string }) {
+  const normalized = description.toLowerCase()
+  if (normalized.includes('rain') || normalized.includes('drizzle')) {
+    return <WaterDropRoundedIcon sx={{ fontSize: 42, color: '#4f7c95' }} />
+  }
+  if (normalized.includes('thunder') || normalized.includes('storm')) {
+    return <ThunderstormRoundedIcon sx={{ fontSize: 42, color: '#5e6f7e' }} />
+  }
+  if (normalized.includes('cloud')) {
+    return <CloudRoundedIcon sx={{ fontSize: 42, color: '#7b8a97' }} />
+  }
+  return <WbSunnyRoundedIcon sx={{ fontSize: 42, color: '#d7a84c' }} />
+}
 
 export function WeatherWidget() {
   const [city, setCity] = useState(DEFAULT_CITY)
@@ -154,13 +171,20 @@ export function WeatherWidget() {
         )}
 
         {!loading && !error && weather && (
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, flexWrap: 'wrap' }}>
             <Box
-              component="img"
-              src={weatherIconUrl(weather.iconCode)}
-              alt=""
-              sx={{ width: 88, height: 88 }}
-            />
+              sx={{
+                width: 72,
+                height: 72,
+                borderRadius: 2,
+                bgcolor: '#f4f7f8',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              <WeatherGlyph description={weather.description} />
+            </Box>
             <Box>
               <Typography variant="h4" component="p">
                 {Math.round(weather.temp)}
