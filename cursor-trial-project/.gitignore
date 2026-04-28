@@ -1,3 +1,5 @@
+# Build/runtime artifacts, local secrets, and machine-specific editor files.
+
 # Logs
 logs
 *.log

@@ -20,11 +20,25 @@ import {
   type CurrentWeather,
 } from '../lib/openWeatherMap'
 
+/**
+ * Weather dashboard card.
+ *
+ * Responsibilities:
+ * - Manages city input and submitted query state
+ * - Fetches current weather via the OpenWeatherMap helper
+ * - Handles loading/error/empty-success UI states
+ * - Renders a compact weather summary for the dashboard
+ *
+ * Mental model:
+ * - "city" is what the user is currently typing.
+ * - "submittedCity" is the committed query that triggers fetches.
+ */
 const API_KEY = import.meta.env.VITE_OPENWEATHER_API_KEY ?? ''
 const DEFAULT_CITY =
   import.meta.env.VITE_WEATHER_DEFAULT_CITY ?? 'New York'
 const WEATHER_WIDGET_HEIGHT = 280
 
+// Visual mapper: convert weather descriptions into simple icon choices.
 function WeatherGlyph({ description }: { description: string }) {
   const normalized = description.toLowerCase()
   if (normalized.includes('rain') || normalized.includes('drizzle')) {
@@ -40,12 +54,14 @@ function WeatherGlyph({ description }: { description: string }) {
 }
 
 export function WeatherWidget() {
+  // Local widget state: input, committed query, request status, and result data.
   const [city, setCity] = useState(DEFAULT_CITY)
   const [submittedCity, setSubmittedCity] = useState(DEFAULT_CITY)
   const [weather, setWeather] = useState<CurrentWeather | null>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
+  // Effect fetch: runs when submittedCity changes; uses cancellation guard.
   useEffect(() => {
     let cancelled = false
 
@@ -82,6 +98,7 @@ export function WeatherWidget() {
     }
   }, [submittedCity])
 
+  // Manual refresh path: re-fetch weather for the current submitted city.
   const load = () => {
     void (async () => {
       if (!API_KEY) {
@@ -106,6 +123,7 @@ export function WeatherWidget() {
     })()
   }
 
+  // Form submit: normalize user input and trigger a new query.
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
     setSubmittedCity(city.trim() || DEFAULT_CITY)
@@ -113,6 +131,7 @@ export function WeatherWidget() {
 
   const tempUnit = '°F'
 
+  // Render state machine: missing API key -> loading -> error -> success UI.
   return (
     <Card sx={{ height: WEATHER_WIDGET_HEIGHT }}>
       <CardContent

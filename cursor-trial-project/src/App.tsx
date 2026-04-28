@@ -18,6 +18,20 @@ import {
   revokeGoogleAccessToken,
 } from './lib/googleIdentity'
 
+/**
+ * App shell + orchestration layer.
+ *
+ * Responsibilities:
+ * - Reads auth-related env config (Google client ID and requested scopes)
+ * - Owns global auth state (signed-in user session, loading, and auth errors)
+ * - Handles Google sign-in/sign-out token lifecycle
+ * - Passes access token down to widgets that need Google APIs
+ * - Lays out dashboard widgets in a responsive grid
+ *
+ * Mental model:
+ * - This file is mostly app-level wiring and state.
+ * - Feature details live in widget and lib files.
+ */
 type GoogleSession = {
   accessToken: string
   name: string
@@ -26,15 +40,18 @@ type GoogleSession = {
 }
 
 function App() {
+  // 1) Config: env-driven OAuth settings with a default scope string.
   const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID ?? ''
   const googleScope =
     import.meta.env.VITE_GOOGLE_AUTH_SCOPE ??
     'openid profile email https://www.googleapis.com/auth/calendar.readonly https://www.googleapis.com/auth/tasks'
 
+  // 2) App-level auth state shared with the header and Google-backed widgets.
   const [session, setSession] = useState<GoogleSession | null>(null)
   const [authLoading, setAuthLoading] = useState(false)
   const [authError, setAuthError] = useState<string | null>(null)
 
+  // 3) Startup effect: preload Google Identity script for smoother sign-in clicks.
   useEffect(() => {
     // Preload Google Identity so popup can open directly on click.
     void loadGoogleIdentityScript().catch(() => {
@@ -42,6 +59,7 @@ function App() {
     })
   }, [])
 
+  // 4a) Auth action: request token + profile, then persist an in-memory session.
   const handleGoogleSignIn = async () => {
     if (!googleClientId) {
       setAuthError('Add VITE_GOOGLE_CLIENT_ID to your .env file.')
@@ -71,6 +89,7 @@ function App() {
     }
   }
 
+  // 4b) Auth action: revoke current token and clear session state.
   const handleGoogleSignOut = async () => {
     if (!session) {
       return
@@ -90,6 +109,7 @@ function App() {
     }
   }
 
+  // 5) Render: app shell, auth error banner, then responsive dashboard widgets.
   return (
     <Box sx={{ minHeight: '100vh', bgcolor: 'grey.100' }}>
       <CssBaseline />
