@@ -23,6 +23,7 @@ import {
 const API_KEY = import.meta.env.VITE_OPENWEATHER_API_KEY ?? ''
 const DEFAULT_CITY =
   import.meta.env.VITE_WEATHER_DEFAULT_CITY ?? 'New York'
+const WEATHER_WIDGET_HEIGHT = 280
 
 function WeatherGlyph({ description }: { description: string }) {
   const normalized = description.toLowerCase()
@@ -113,13 +114,20 @@ export function WeatherWidget() {
   const tempUnit = '°F'
 
   return (
-    <Card sx={{ height: '100%' }}>
-      <CardContent>
-        <Typography variant="h6" sx={{ mb: 2 }}>
+    <Card sx={{ height: WEATHER_WIDGET_HEIGHT }}>
+      <CardContent
+        sx={{
+          height: '100%',
+          display: 'flex',
+          flexDirection: 'column',
+          minHeight: 0,
+        }}
+      >
+        <Typography variant="h6" sx={{ mb: 2, flexShrink: 0 }}>
           Weather
         </Typography>
 
-        <Box component="form" onSubmit={handleSubmit} sx={{ mb: 2 }}>
+        <Box component="form" onSubmit={handleSubmit} sx={{ mb: 2, flexShrink: 0 }}>
           <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1}>
             <TextField
               fullWidth
@@ -144,66 +152,68 @@ export function WeatherWidget() {
           </Stack>
         </Box>
 
-        {!API_KEY && (
-          <Typography variant="body2" color="warning.main" sx={{ mb: 1 }}>
-            Placeholder: set{' '}
-            <Typography component="span" variant="body2" sx={{ fontFamily: 'monospace' }}>
-              VITE_OPENWEATHER_API_KEY=YOUR_KEY_HERE
-            </Typography>{' '}
-            in <Typography component="span" variant="body2" sx={{ fontFamily: 'monospace' }}>.env</Typography>{' '}
-            (copy from .env.example), then restart the dev server.
-          </Typography>
-        )}
-
-        {loading && (
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, py: 2 }}>
-            <CircularProgress size={22} />
-            <Typography variant="body2" color="text.secondary">
-              Loading…
+        <Box sx={{ flex: 1, minHeight: 0, overflowY: 'auto', pr: 0.5 }}>
+          {!API_KEY && (
+            <Typography variant="body2" color="warning.main" sx={{ mb: 1 }}>
+              Placeholder: set{' '}
+              <Typography component="span" variant="body2" sx={{ fontFamily: 'monospace' }}>
+                VITE_OPENWEATHER_API_KEY=YOUR_KEY_HERE
+              </Typography>{' '}
+              in <Typography component="span" variant="body2" sx={{ fontFamily: 'monospace' }}>.env</Typography>{' '}
+              (copy from .env.example), then restart the dev server.
             </Typography>
-          </Box>
-        )}
+          )}
 
-        {!loading && error && (
-          <Typography variant="body2" color="error">
-            {error}
-          </Typography>
-        )}
-
-        {!loading && !error && weather && (
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, flexWrap: 'wrap' }}>
-            <Box
-              sx={{
-                width: 72,
-                height: 72,
-                borderRadius: 2,
-                bgcolor: '#f4f7f8',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
-            >
-              <WeatherGlyph description={weather.description} />
-            </Box>
-            <Box>
-              <Typography variant="h4" component="p">
-                {Math.round(weather.temp)}
-                {tempUnit}
-              </Typography>
-              <Typography variant="body2" color="text.secondary" sx={{ textTransform: 'capitalize' }}>
-                {weather.description}
-              </Typography>
+          {loading && (
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, py: 2 }}>
+              <CircularProgress size={22} />
               <Typography variant="body2" color="text.secondary">
-                {weather.cityName}
-                {weather.country ? `, ${weather.country}` : ''}
-              </Typography>
-              <Typography variant="caption" color="text.secondary" sx={{ display: 'block' }}>
-                Feels like {Math.round(weather.feelsLike)}
-                {tempUnit} · Humidity {weather.humidity}%
+                Loading…
               </Typography>
             </Box>
-          </Box>
-        )}
+          )}
+
+          {!loading && error && (
+            <Typography variant="body2" color="error">
+              {error}
+            </Typography>
+          )}
+
+          {!loading && !error && weather && (
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, flexWrap: 'wrap' }}>
+              <Box
+                sx={{
+                  width: 72,
+                  height: 72,
+                  borderRadius: 2,
+                  bgcolor: '#f4f7f8',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+              >
+                <WeatherGlyph description={weather.description} />
+              </Box>
+              <Box>
+                <Typography variant="h4" component="p">
+                  {Math.round(weather.temp)}
+                  {tempUnit}
+                </Typography>
+                <Typography variant="body2" color="text.secondary" sx={{ textTransform: 'capitalize' }}>
+                  {weather.description}
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                  {weather.cityName}
+                  {weather.country ? `, ${weather.country}` : ''}
+                </Typography>
+                <Typography variant="caption" color="text.secondary" sx={{ display: 'block' }}>
+                  Feels like {Math.round(weather.feelsLike)}
+                  {tempUnit} · Humidity {weather.humidity}%
+                </Typography>
+              </Box>
+            </Box>
+          )}
+        </Box>
       </CardContent>
     </Card>
   )

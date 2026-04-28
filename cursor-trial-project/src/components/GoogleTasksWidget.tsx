@@ -33,6 +33,8 @@ type GoogleTasksWidgetProps = {
   accessToken: string | null
 }
 
+const TASKS_WIDGET_HEIGHT = 280
+
 export function GoogleTasksWidget({ accessToken }: GoogleTasksWidgetProps) {
   const [tasks, setTasks] = useState<GoogleTask[]>([])
   const [loading, setLoading] = useState(false)
@@ -186,8 +188,20 @@ export function GoogleTasksWidget({ accessToken }: GoogleTasksWidgetProps) {
   }
 
   return (
-    <Card sx={{ height: '100%' }}>
-      <CardContent>
+    <Card
+      sx={{
+        height: TASKS_WIDGET_HEIGHT,
+        maxHeight: TASKS_WIDGET_HEIGHT,
+      }}
+    >
+      <CardContent
+        sx={{
+          height: '100%',
+          display: 'flex',
+          flexDirection: 'column',
+          minHeight: 0,
+        }}
+      >
         <Box
           sx={{
             display: 'flex',
@@ -196,6 +210,7 @@ export function GoogleTasksWidget({ accessToken }: GoogleTasksWidgetProps) {
             flexDirection: { xs: 'column', sm: 'row' },
             gap: 1,
             mb: 2,
+            flexShrink: 0,
           }}
         >
           <Typography variant="h6">To-do List</Typography>
@@ -214,7 +229,7 @@ export function GoogleTasksWidget({ accessToken }: GoogleTasksWidgetProps) {
         <Box
           component="form"
           onSubmit={handleAddTask}
-          sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, gap: 1, mb: 2 }}
+          sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, gap: 1, mb: 2, flexShrink: 0 }}
         >
           <TextField
             fullWidth
@@ -229,119 +244,121 @@ export function GoogleTasksWidget({ accessToken }: GoogleTasksWidgetProps) {
           </Button>
         </Box>
 
-        {loading && (
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
-            <CircularProgress size={18} />
-            <Typography variant="body2" color="text.secondary">
-              Syncing tasks...
-            </Typography>
-          </Box>
-        )}
+        <Box sx={{ flex: 1, minHeight: 0, overflowY: 'auto', pr: 0.5 }}>
+          {loading && (
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
+              <CircularProgress size={18} />
+              <Typography variant="body2" color="text.secondary">
+                Syncing tasks...
+              </Typography>
+            </Box>
+          )}
 
-        {error && (
-          <Typography variant="body2" color="error" sx={{ mb: 1.5 }}>
-            {error}
-          </Typography>
-        )}
-
-        {!accessToken && (
-          <Box
-            sx={{
-              border: '1px dashed #d7dde1',
-              borderRadius: 2,
-              p: 2,
-              mb: 2,
-              textAlign: 'center',
-              bgcolor: '#fbfcfc',
-            }}
-          >
-            <TaskAltRoundedIcon sx={{ color: 'text.secondary', mb: 0.5 }} />
-            <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-              Connect your Google account to sync tasks.
-            </Typography>
-            <Button disabled variant="outlined" size="small">
-              Connect Google Account
-            </Button>
-          </Box>
-        )}
-
-        <List sx={{ py: 0 }}>
-          {!loading && tasks.length === 0 && !error && (
-            <Typography variant="body2" color="text.secondary">
-              No tasks yet.
+          {error && (
+            <Typography variant="body2" color="error" sx={{ mb: 1.5 }}>
+              {error}
             </Typography>
           )}
-          {tasks.map((task) => (
-            <ListItem
-              key={task.id}
-              disablePadding
-              secondaryAction={
-                <Stack direction="row" spacing={0.5}>
-                  {editingId === task.id ? (
-                    <>
-                      <IconButton edge="end" onClick={() => handleSaveEdit(task.id)} disabled={loading}>
-                        <SaveRoundedIcon />
-                      </IconButton>
-                      <IconButton
-                        edge="end"
-                        onClick={() => {
-                          setEditingId(null)
-                          setEditingText('')
-                        }}
-                        disabled={loading}
-                      >
-                        <CloseRoundedIcon />
-                      </IconButton>
-                    </>
-                  ) : (
-                    <>
-                      <IconButton
-                        edge="end"
-                        onClick={() => {
-                          setEditingId(task.id)
-                          setEditingText(task.title)
-                        }}
-                        disabled={loading}
-                      >
-                        <EditRoundedIcon />
-                      </IconButton>
-                      <IconButton edge="end" onClick={() => handleDeleteTask(task.id)} disabled={loading}>
-                        <DeleteRoundedIcon />
-                      </IconButton>
-                    </>
-                  )}
-                </Stack>
-              }
+
+          {!accessToken && (
+            <Box
+              sx={{
+                border: '1px dashed #d7dde1',
+                borderRadius: 2,
+                p: 2,
+                mb: 2,
+                textAlign: 'center',
+                bgcolor: '#fbfcfc',
+              }}
             >
-              <ListItemIcon sx={{ minWidth: 36 }}>
-                <Checkbox
-                  edge="start"
-                  checked={task.completed}
-                  onChange={() => handleToggleTask(task)}
-                  disabled={loading}
-                />
-              </ListItemIcon>
-              {editingId === task.id ? (
-                <TextField
-                  fullWidth
-                  size="small"
-                  value={editingText}
-                  onChange={(event) => setEditingText(event.target.value)}
-                  disabled={loading}
-                />
-              ) : (
-                <Typography
-                  sx={{
-                    textDecoration: task.completed ? 'line-through' : 'none',
-                    color: task.completed ? 'text.secondary' : 'text.primary',
-                  }}
-                >
-                  {task.title}
-                </Typography>
-              )}
-            </ListItem>
-          ))}
-        </List>
+              <TaskAltRoundedIcon sx={{ color: 'text.secondary', mb: 0.5 }} />
+              <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+                Connect your Google account to sync tasks.
+              </Typography>
+              <Button disabled variant="outlined" size="small">
+                Connect Google Account
+              </Button>
+            </Box>
+          )}
+
+          <List sx={{ py: 0 }}>
+            {!loading && tasks.length === 0 && !error && (
+              <Typography variant="body2" color="text.secondary">
+                No tasks yet.
+              </Typography>
+            )}
+            {tasks.map((task) => (
+              <ListItem
+                key={task.id}
+                disablePadding
+                secondaryAction={
+                  <Stack direction="row" spacing={0.5}>
+                    {editingId === task.id ? (
+                      <>
+                        <IconButton edge="end" onClick={() => handleSaveEdit(task.id)} disabled={loading}>
+                          <SaveRoundedIcon />
+                        </IconButton>
+                        <IconButton
+                          edge="end"
+                          onClick={() => {
+                            setEditingId(null)
+                            setEditingText('')
+                          }}
+                          disabled={loading}
+                        >
+                          <CloseRoundedIcon />
+                        </IconButton>
+                      </>
+                    ) : (
+                      <>
+                        <IconButton
+                          edge="end"
+                          onClick={() => {
+                            setEditingId(task.id)
+                            setEditingText(task.title)
+                          }}
+                          disabled={loading}
+                        >
+                          <EditRoundedIcon />
+                        </IconButton>
+                        <IconButton edge="end" onClick={() => handleDeleteTask(task.id)} disabled={loading}>
+                          <DeleteRoundedIcon />
+                        </IconButton>
+                      </>
+                    )}
+                  </Stack>
+                }
+              >
+                <ListItemIcon sx={{ minWidth: 36 }}>
+                  <Checkbox
+                    edge="start"
+                    checked={task.completed}
+                    onChange={() => handleToggleTask(task)}
+                    disabled={loading}
+                  />
+                </ListItemIcon>
+                {editingId === task.id ? (
+                  <TextField
+                    fullWidth
+                    size="small"
+                    value={editingText}
+                    onChange={(event) => setEditingText(event.target.value)}
+                    disabled={loading}
+                  />
+                ) : (
+                  <Typography
+                    sx={{
+                      textDecoration: task.completed ? 'line-through' : 'none',
+                      color: task.completed ? 'text.secondary' : 'text.primary',
+                    }}
+                  >
+                    {task.title}
+                  </Typography>
+                )}
+              </ListItem>
+            ))}
+          </List>
+        </Box>
       </CardContent>
     </Card>
   )

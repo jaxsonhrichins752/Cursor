@@ -125,7 +125,7 @@ function App() {
           <Grid size={{ xs: 12, md: 5 }}>
             <WeatherWidget />
           </Grid>
-          <Grid size={{ xs: 12, sm: 6, md: 4 }}>
+          <Grid size={{ xs: 12, sm: 6, md: 4 }} sx={{ alignSelf: 'start' }}>
             <GoogleCalendarWidget accessToken={session?.accessToken ?? null} />
           </Grid>
           <Grid size={{ xs: 12, sm: 6, md: 8 }}>

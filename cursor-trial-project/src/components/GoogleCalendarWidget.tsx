@@ -16,6 +16,8 @@ type GoogleCalendarWidgetProps = {
   accessToken: string | null
 }
 
+const CALENDAR_WIDGET_HEIGHT = 320
+
 function formatEventDate(value: string) {
   const date = new Date(value)
   if (Number.isNaN(date.getTime())) {
@@ -94,8 +96,22 @@ export function GoogleCalendarWidget({ accessToken }: GoogleCalendarWidgetProps)
   }
 
   return (
-    <Card sx={{ height: '100%' }}>
-      <CardContent>
+    <Card
+      sx={{
+        height: CALENDAR_WIDGET_HEIGHT,
+        maxHeight: CALENDAR_WIDGET_HEIGHT,
+        display: 'flex',
+        flexDirection: 'column',
+      }}
+    >
+      <CardContent
+        sx={{
+          height: '100%',
+          display: 'flex',
+          flexDirection: 'column',
+          minHeight: 0,
+        }}
+      >
         <Box
           sx={{
             display: 'flex',
@@ -104,6 +120,7 @@ export function GoogleCalendarWidget({ accessToken }: GoogleCalendarWidgetProps)
             flexDirection: { xs: 'column', sm: 'row' },
             gap: 1,
             mb: 2,
+            flexShrink: 0,
           }}
         >
           <Typography variant="h6">Calendar</Typography>
@@ -120,7 +137,7 @@ export function GoogleCalendarWidget({ accessToken }: GoogleCalendarWidgetProps)
         </Box>
 
         {loading && (
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flexShrink: 0 }}>
             <CircularProgress size={20} />
             <Typography variant="body2" color="text.secondary">
               Loading events...
@@ -129,7 +146,7 @@ export function GoogleCalendarWidget({ accessToken }: GoogleCalendarWidgetProps)
         )}
 
         {!loading && error && (
-          <Typography variant="body2" color="error">
+          <Typography variant="body2" color="error" sx={{ flexShrink: 0 }}>
             {error}
           </Typography>
         )}
@@ -142,6 +159,7 @@ export function GoogleCalendarWidget({ accessToken }: GoogleCalendarWidgetProps)
               p: 2,
               textAlign: 'center',
               bgcolor: '#fbfcfc',
+              flexShrink: 0,
             }}
           >
             <CalendarMonthRoundedIcon sx={{ color: 'text.secondary', mb: 0.5 }} />
@@ -154,28 +172,30 @@ export function GoogleCalendarWidget({ accessToken }: GoogleCalendarWidgetProps)
           </Box>
         )}
 
-        {!loading && !error && events.length === 0 && (
-          <Typography variant="body2" color="text.secondary">
-            No upcoming events found.
-          </Typography>
-        )}
-
-        {!loading && !error && events.length > 0 && (
-          <Stack spacing={1.5}>
-            {events.map((event) => (
-              <Box
-                key={event.id}
-                sx={{ p: 1.25, borderRadius: 1, bgcolor: 'grey.100' }}
-              >
-                <Typography variant="body2" sx={{ fontWeight: 600 }}>
-                  {event.summary}
-                </Typography>
-                <Typography variant="caption" color="text.secondary">
-                  {formatEventDate(event.start)}
-                </Typography>
-              </Box>
-            ))}
-          </Stack>
+        {!loading && !error && (
+          <Box sx={{ flex: 1, minHeight: 0, overflowY: 'auto', pr: 0.5 }}>
+            {events.length === 0 ? (
+              <Typography variant="body2" color="text.secondary">
+                No upcoming events found.
+              </Typography>
+            ) : (
+              <Stack spacing={1.5}>
+                {events.map((event) => (
+                  <Box
+                    key={event.id}
+                    sx={{ p: 1.25, borderRadius: 1, bgcolor: 'grey.100' }}
+                  >
+                    <Typography variant="body2" sx={{ fontWeight: 600 }}>
+                      {event.summary}
+                    </Typography>
+                    <Typography variant="caption" color="text.secondary">
+                      {formatEventDate(event.start)}
+                    </Typography>
+                  </Box>
+                ))}
+              </Stack>
+            )}
+          </Box>
         )}
       </CardContent>
     </Card>
