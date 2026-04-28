@@ -20,7 +20,7 @@ type AppHeaderProps = {
   authLoading: boolean
   userName?: string
   userAvatar?: string
-  onOpenMobileMenu: () => void
+  onOpenMobileMenu?: () => void
   onSignIn: () => void
   onSignOut: () => void
 }
@@ -43,14 +43,16 @@ export function AppHeader({
     <>
       <AppBar position="static" elevation={0}>
         <Toolbar>
-          <IconButton
-            color="inherit"
-            edge="start"
-            sx={{ mr: 1, display: { xs: 'inline-flex', md: 'none' } }}
-            onClick={onOpenMobileMenu}
-          >
-            <MenuRoundedIcon />
-          </IconButton>
+          {onOpenMobileMenu && (
+            <IconButton
+              color="inherit"
+              edge="start"
+              sx={{ mr: 1, display: { xs: 'inline-flex', md: 'none' } }}
+              onClick={onOpenMobileMenu}
+            >
+              <MenuRoundedIcon />
+            </IconButton>
+          )}
           <Typography variant="h6" sx={{ flexGrow: 1 }}>
             Personal Dashboard
           </Typography>

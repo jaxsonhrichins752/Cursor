@@ -6,16 +6,11 @@ import {
   Grid,
   Typography,
 } from '@mui/material'
-import DashboardRoundedIcon from '@mui/icons-material/DashboardRounded'
-import FolderRoundedIcon from '@mui/icons-material/FolderRounded'
-import PeopleRoundedIcon from '@mui/icons-material/PeopleRounded'
-import SettingsRoundedIcon from '@mui/icons-material/SettingsRounded'
 import { WeatherWidget } from './components/WeatherWidget'
 import { GoogleCalendarWidget } from './components/GoogleCalendarWidget'
 import { GoogleTasksWidget } from './components/GoogleTasksWidget'
 import { MtgCardOfDayWidget } from './components/MtgCardOfDayWidget'
 import { AppHeader } from './components/layout/AppHeader'
-import { AppSidebar } from './components/layout/AppSidebar'
 import {
   fetchGoogleUserProfile,
   loadGoogleIdentityScript,
@@ -31,7 +26,6 @@ type GoogleSession = {
 }
 
 function App() {
-  const drawerWidth = 240
   const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID ?? ''
   const googleScope =
     import.meta.env.VITE_GOOGLE_AUTH_SCOPE ??
@@ -40,14 +34,6 @@ function App() {
   const [session, setSession] = useState<GoogleSession | null>(null)
   const [authLoading, setAuthLoading] = useState(false)
   const [authError, setAuthError] = useState<string | null>(null)
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
-
-  const navItems = [
-    { label: 'Overview', icon: <DashboardRoundedIcon /> },
-    { label: 'Projects', icon: <FolderRoundedIcon /> },
-    { label: 'Team', icon: <PeopleRoundedIcon /> },
-    { label: 'Settings', icon: <SettingsRoundedIcon /> },
-  ]
 
   useEffect(() => {
     // Preload Google Identity so popup can open directly on click.
@@ -112,7 +98,6 @@ function App() {
         authLoading={authLoading}
         userName={session?.name}
         userAvatar={session?.picture}
-        onOpenMobileMenu={() => setMobileMenuOpen(true)}
         onSignIn={() => void handleGoogleSignIn()}
         onSignOut={() => void handleGoogleSignOut()}
       />
@@ -122,33 +107,31 @@ function App() {
         </Box>
       )}
 
-      <Box sx={{ display: 'flex' }}>
-        <AppSidebar
-          drawerWidth={drawerWidth}
-          mobileOpen={mobileMenuOpen}
-          onCloseMobile={() => setMobileMenuOpen(false)}
-          navItems={navItems}
-        />
-
-        <Box component="main" sx={{ flexGrow: 1, p: { xs: 2, sm: 3 } }}>
-          <Typography variant="h5" sx={{ mb: 2 }}>
-            Overview
-          </Typography>
-          <Grid container spacing={2}>
-            <Grid size={{ xs: 12, md: 6 }}>
-              <GoogleTasksWidget accessToken={session?.accessToken ?? null} />
-            </Grid>
-            <Grid size={{ xs: 12, md: 6 }}>
-              <WeatherWidget />
-            </Grid>
-            <Grid size={{ xs: 12, sm: 6, md: 4 }}>
-              <GoogleCalendarWidget accessToken={session?.accessToken ?? null} />
-            </Grid>
-            <Grid size={{ xs: 12, md: 8 }}>
-              <MtgCardOfDayWidget />
-            </Grid>
+      <Box component="main" sx={{ p: { xs: 2, sm: 3 } }}>
+        <Typography variant="h5" sx={{ mb: 2 }}>
+          Overview
+        </Typography>
+        <Grid
+          container
+          spacing={2}
+          sx={{
+            alignItems: 'stretch',
+            gridAutoRows: { xs: 'auto', md: 'minmax(160px, auto)' },
+          }}
+        >
+          <Grid size={{ xs: 12, md: 7 }} sx={{ gridRow: { md: 'span 2' } }}>
+            <GoogleTasksWidget accessToken={session?.accessToken ?? null} />
           </Grid>
-        </Box>
+          <Grid size={{ xs: 12, md: 5 }}>
+            <WeatherWidget />
+          </Grid>
+          <Grid size={{ xs: 12, sm: 6, md: 5 }}>
+            <GoogleCalendarWidget accessToken={session?.accessToken ?? null} />
+          </Grid>
+          <Grid size={{ xs: 12 }} sx={{ gridRow: { md: 'span 2' } }}>
+            <MtgCardOfDayWidget />
+          </Grid>
+        </Grid>
       </Box>
     </Box>
   )
