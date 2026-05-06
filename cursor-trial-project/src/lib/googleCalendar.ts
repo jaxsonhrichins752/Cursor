@@ -3,12 +3,18 @@ export type CalendarEvent = {
   summary: string
   start: string
   end?: string
+  description?: string
+  location?: string
+  htmlLink?: string
 }
 
 type CalendarEventsResponse = {
   items?: Array<{
     id?: string
     summary?: string
+    description?: string
+    location?: string
+    htmlLink?: string
     start?: { dateTime?: string; date?: string }
     end?: { dateTime?: string; date?: string }
   }>
@@ -49,5 +55,8 @@ export async function fetchUpcomingCalendarEvents(input: {
       summary: event.summary || 'Untitled event',
       start: (event.start?.dateTime || event.start?.date) as string,
       end: event.end?.dateTime || event.end?.date,
+      description: event.description?.trim() || undefined,
+      location: event.location?.trim() || undefined,
+      htmlLink: event.htmlLink?.trim() || undefined,
     }))
 }

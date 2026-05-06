@@ -2,9 +2,15 @@ import { useEffect, useState } from 'react'
 import {
   Box,
   Button,
+  ButtonBase,
   Card,
   CardContent,
   CircularProgress,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  Link,
   Stack,
   Typography,
 } from '@mui/material'
@@ -33,10 +39,44 @@ function formatEventDate(value: string) {
   }).format(date)
 }
 
+function isAllDay(value: string): boolean {
+  return /^\d{4}-\d{2}-\d{2}$/.test(value)
+}
+
+function formatAllDayDate(dateStr: string): string {
+  const [y, m, d] = dateStr.split('-').map(Number)
+  if (!y || !m || !d) {
+    return dateStr
+  }
+  const date = new Date(y, m - 1, d)
+  return new Intl.DateTimeFormat(undefined, {
+    weekday: 'short',
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+  }).format(date)
+}
+
+function formatEventTimeRange(start: string, end?: string): string {
+  if (isAllDay(start)) {
+    const startLabel = formatAllDayDate(start)
+    if (end && isAllDay(end)) {
+      return `${startLabel} – ${formatAllDayDate(end)} (all day)`
+    }
+    return `${startLabel} (all day)`
+  }
+  const startLabel = formatEventDate(start)
+  if (end && !isAllDay(end)) {
+    return `${startLabel} – ${formatEventDate(end)}`
+  }
+  return startLabel
+}
+
 export function GoogleCalendarWidget({ accessToken }: GoogleCalendarWidgetProps) {
   const [events, setEvents] = useState<CalendarEvent[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(null)
 
   useEffect(() => {
     let cancelled = false
@@ -181,23 +221,109 @@ export function GoogleCalendarWidget({ accessToken }: GoogleCalendarWidgetProps)
             ) : (
               <Stack spacing={1.5}>
                 {events.map((event) => (
-                  <Box
+                  <ButtonBase
                     key={event.id}
-                    sx={{ p: 1.25, borderRadius: 1, bgcolor: 'grey.100' }}
+                    focusRipple
+                    onClick={() => setSelectedEvent(event)}
+                    sx={{
+                      display: 'block',
+                      width: '100%',
+                      textAlign: 'left',
+                      borderRadius: 1,
+                      p: 1.25,
+                      bgcolor: 'grey.100',
+                      '&:hover': { bgcolor: 'grey.200' },
+                    }}
                   >
                     <Typography variant="body2" sx={{ fontWeight: 600 }}>
                       {event.summary}
                     </Typography>
-                    <Typography variant="caption" color="text.secondary">
-                      {formatEventDate(event.start)}
+                    <Typography
+                      variant="caption"
+                      color="text.secondary"
+                      component="span"
+                      sx={{ display: 'block' }}
+                    >
+                      {isAllDay(event.start)
+                        ? `${formatAllDayDate(event.start)} (all day)`
+                        : formatEventDate(event.start)}
                     </Typography>
-                  </Box>
+                  </ButtonBase>
                 ))}
               </Stack>
             )}
           </Box>
         )}
       </CardContent>
+
+      <Dialog
+        open={Boolean(selectedEvent)}
+        onClose={() => setSelectedEvent(null)}
+        fullWidth
+        maxWidth="sm"
+        aria-labelledby="calendar-event-detail-title"
+      >
+        {selectedEvent && (
+          <>
+            <DialogTitle id="calendar-event-detail-title">
+              {selectedEvent.summary}
+            </DialogTitle>
+            <DialogContent dividers>
+              <Stack spacing={2}>
+                <Box>
+                  <Typography variant="caption" color="text.secondary" sx={{ display: 'block' }}>
+                    When
+                  </Typography>
+                  <Typography variant="body2">
+                    {formatEventTimeRange(selectedEvent.start, selectedEvent.end)}
+                  </Typography>
+                </Box>
+                {selectedEvent.location ? (
+                  <Box>
+                    <Typography variant="caption" color="text.secondary" sx={{ display: 'block' }}>
+                      Location
+                    </Typography>
+                    <Typography variant="body2">{selectedEvent.location}</Typography>
+                  </Box>
+                ) : null}
+                {selectedEvent.description ? (
+                  <Box>
+                    <Typography variant="caption" color="text.secondary" sx={{ display: 'block' }}>
+                      Description
+                    </Typography>
+                    <Typography
+                      variant="body2"
+                      sx={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}
+                    >
+                      {selectedEvent.description}
+                    </Typography>
+                  </Box>
+                ) : null}
+                {!selectedEvent.location &&
+                !selectedEvent.description &&
+                selectedEvent.htmlLink ? (
+                  <Typography variant="body2" color="text.secondary">
+                    No extra details in the list response. Open in Google Calendar for more.
+                  </Typography>
+                ) : null}
+                {selectedEvent.htmlLink ? (
+                  <Link
+                    href={selectedEvent.htmlLink}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    variant="body2"
+                  >
+                    Open in Google Calendar
+                  </Link>
+                ) : null}
+              </Stack>
+            </DialogContent>
+            <DialogActions>
+              <Button onClick={() => setSelectedEvent(null)}>Close</Button>
+            </DialogActions>
+          </>
+        )}
+      </Dialog>
     </Card>
   )
 }
